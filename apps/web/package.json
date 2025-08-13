@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "echo \"Basic web tests placeholder\" && exit 0"
+    "test": "jest"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.24.2",

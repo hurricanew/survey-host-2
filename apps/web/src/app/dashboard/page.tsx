@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Button, Heading, Text, VStack, HStack } from '@chakra-ui/react'
+import { Box, Heading, Text, VStack } from '@chakra-ui/react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthGuard } from '@/components/AuthGuard'
 
@@ -13,23 +13,17 @@ export default function DashboardPage() {
 }
 
 function DashboardContent() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
   return (
-    <Box minH="100vh" bg="gray.50" p={8}>
+    <Box minH="calc(100vh - 80px)" bg="gray.50" p={8}>
       <Box maxW="6xl" mx="auto">
-        <HStack justify="space-between" mb={8}>
-          <VStack align="start" gap={1}>
-            <Heading size="lg">Welcome to your Dashboard</Heading>
-            <Text color="gray.600">
-              Hello, {user?.name || user?.email}
-            </Text>
-          </VStack>
-          
-          <Button onClick={logout} variant="outline">
-            Sign Out
-          </Button>
-        </HStack>
+        <VStack align="start" gap={1} mb={8}>
+          <Heading size="lg">Welcome to your Dashboard</Heading>
+          <Text color="gray.600">
+            Hello, {user?.name || user?.email}
+          </Text>
+        </VStack>
 
         <Box bg="white" rounded="lg" shadow="sm" p={6}>
           <Heading size="md" mb={4}>

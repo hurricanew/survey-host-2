@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers/chakra-provider";
 import { AuthProvider } from "@/providers/auth-provider";
+import { HeaderWrapper } from "@/components/HeaderWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <Providers>
+            <HeaderWrapper />
             {children}
           </Providers>
         </AuthProvider>

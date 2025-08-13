@@ -1,14 +1,13 @@
 'use client'
 
-import { Box, Heading, Text, Stack, Button, HStack } from '@chakra-ui/react'
+import { Box, Heading, Text, Stack } from '@chakra-ui/react'
 import { useSession } from 'next-auth/react'
-import Link from 'next/link'
 
 export default function Home() {
   const { data: session, status } = useSession()
 
   return (
-    <Box minH="100vh" p={8}>
+    <Box minH="calc(100vh - 80px)" p={8}>
       <Stack gap={6} align="center" justify="center" minH="70vh">
         <Heading as="h1" size="2xl" textAlign="center" color="blue.600">
           TTI Survey Platform
@@ -21,27 +20,13 @@ export default function Home() {
         {status === 'loading' ? (
           <Text>Loading...</Text>
         ) : session ? (
-          <HStack gap={4}>
-            <Text color="gray.600">Welcome back, {session.user?.name}!</Text>
-            <Link href="/dashboard">
-              <Button colorScheme="blue">
-                Go to Dashboard
-              </Button>
-            </Link>
-          </HStack>
+          <Text color="gray.600" fontSize="lg">
+            Welcome back, {session.user?.name}! Use the header to navigate to your dashboard.
+          </Text>
         ) : (
-          <HStack gap={4}>
-            <Link href="/auth/signin">
-              <Button colorScheme="blue">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/signin">
-              <Button variant="outline">
-                Get Started
-              </Button>
-            </Link>
-          </HStack>
+          <Text color="gray.600" fontSize="lg">
+            Sign in using the button in the top right to get started.
+          </Text>
         )}
       </Stack>
     </Box>

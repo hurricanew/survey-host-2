@@ -7,6 +7,13 @@ const handler = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     })
   ],
   pages: {
@@ -37,15 +44,28 @@ const handler = NextAuth({
       return session
     },
     async signIn({ user, account, profile }) {
-      // TODO: Store user in database in Task 5
-      console.log('User signed in:', { user, account, profile })
-      return true
+      try {
+        // TODO: Store user in database in Task 5
+        console.log('User signed in:', { user, account, profile })
+        
+        // Ensure we have required user information
+        if (!user.email || !user.name) {
+          console.error('Missing required user information:', { user })
+          return false
+        }
+        
+        return true
+      } catch (error) {
+        console.error('Error during sign in:', error)
+        return false
+      }
     },
   },
   session: {
     strategy: 'jwt',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 })
 
 export { handler as GET, handler as POST }
