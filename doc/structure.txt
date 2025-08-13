@@ -1,0 +1,32 @@
+tti-monorepo/
+├── apps/
+│   ├── api/                # NestJS Backend Application
+│   │   ├── src/
+│   │   │   ├── features/     # Feature modules (auth, surveys, etc.)
+│   │   │   ├── prisma/       # Prisma schema and client
+│   │   │   └── main.ts       # App entry point
+│   │   └── package.json
+│   └── web/                # Next.js Frontend Application
+│       ├── src/
+│       │   ├── app/          # Next.js App Router
+│       │   │   ├── (protected)/
+│       │   │   └── (public)/
+│       │   ├── features/     # Feature-based components & services
+│       │   ├── lib/          # Helper functions, API client
+│       │   └── stores/       # Zustand global state stores
+│       └── package.json
+├── packages/
+│   ├── config/             # Shared configurations
+│   │   ├── eslint-preset.js
+│   │   └── tsconfig/
+│   │       └── base.json
+│   ├── shared/             # Shared code (types, validation)
+│   │   └── src/
+│   │       └── types/
+│   │           ├── user.ts
+│   │           ├── survey.ts
+│   │           └── response.ts
+│   └── ui/                 # Shared UI components (e.g., buttons, theme)
+│       └── src/
+├── package.json            # Root package.json with workspaces
+└── turbo.json              # Turborepo configuration
