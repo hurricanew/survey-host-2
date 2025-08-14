@@ -115,10 +115,10 @@ As a Creator, I want a simple interface to input my survey text and see a live p
 
 AC: Dashboard has "Create" button, creation page has text area and file upload, a real-time preview is shown, "Generate Link" button is present.
 
-Story 1.4: Text Parsing & Survey Storage
-As a Creator, when I submit my formatted text, I want the system to parse and save it...
+Story 1.4: Text Parsing & Survey live play & Survey Storage
+As a Creator, when I submit my formatted text, I want the system to parse and save it and have live preview
 
-AC: Backend endpoint accepts survey text, parsing logic correctly interprets syntax, new survey record is created and linked to user, unique slug is generated and returned.
+AC: Backend endpoint accepts survey text, parsing logic correctly interprets syntax, new survey record is created and linked to user, unique slug is generated and returned. But survey will not be created in db yet. Live preview, which is operating same way with real survey, will show one question at a time with options as single choice, at the end of survey user will be given a total score and a description of the total score. check doc/sample.txt as reference. there will be save survey button, once saved, survey will be added to db. 
 
 Story 1.5: Creator Dashboard & Link Generation
 As a Creator, I want to see a list of my created surveys on my dashboard...
