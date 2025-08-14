@@ -57,3 +57,5 @@ coverage/
 # Cache
 .cache/
 .parcel-cache/
+.bmad-core/enhanced-ide-development-workflow.md
+.env.example

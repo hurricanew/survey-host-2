@@ -1,0 +1,82 @@
+Personal Wellness Assessment Survey
+
+This survey helps you evaluate your overall wellness across different life areas. Each question has multiple choice answers that will contribute to your total wellness score.
+
+1. How often do you engage in physical exercise or activities?
+   a) Never or rarely - I don't exercise regularly
+   b) 1-2 times per week - Light physical activity
+   c) 3-4 times per week - Moderate exercise routine
+   d) 5+ times per week - Regular active lifestyle
+
+2. How would you rate your sleep quality and duration?
+   a) Poor sleep - Less than 5 hours or very restless
+   b) Fair sleep - 5-6 hours with some disruptions
+   c) Good sleep - 7-8 hours with minor disruptions
+   d) Excellent sleep - 7-9 hours of restful sleep
+
+3. How do you typically manage stress in your daily life?
+   a) Poorly - Often overwhelmed and no coping strategies
+   b) Somewhat - Some coping methods but still struggle
+   c) Well - Have effective stress management techniques
+   d) Excellently - Proactive stress prevention and excellent coping
+
+4. How would you describe your social connections and relationships?
+   a) Isolated - Very few meaningful connections
+   b) Limited - A few close relationships but want more
+   c) Good - Several meaningful relationships and social activities
+   d) Excellent - Rich social network and deep connections
+
+5. How satisfied are you with your work-life balance?
+   a) Very dissatisfied - Work dominates everything
+   b) Somewhat dissatisfied - Struggling to find balance
+   c) Satisfied - Generally good balance with room for improvement
+   d) Very satisfied - Excellent balance between work and personal life
+
+6. How often do you engage in activities that bring you joy and fulfillment?
+   a) Rarely - Little time for enjoyable activities
+   b) Sometimes - Occasional moments of joy and fulfillment
+   c) Often - Regular activities that bring happiness
+   d) Daily - Consistent engagement in fulfilling activities
+
+7. How would you rate your overall nutrition and eating habits?
+   a) Poor - Mostly processed foods, irregular eating
+   b) Fair - Mix of healthy and unhealthy choices
+   c) Good - Mostly nutritious foods with occasional treats
+   d) Excellent - Well-balanced, nutritious diet consistently
+
+8. How effectively do you set and achieve personal goals?
+   a) Poorly - Rarely set goals or follow through
+   b) Somewhat - Set goals but struggle with achievement
+   c) Well - Generally successful at reaching goals
+   d) Excellently - Consistent goal setting and high achievement rate
+
+9. How would you describe your mental and emotional wellbeing?
+   a) Struggling - Frequent anxiety, depression, or negative emotions
+   b) Challenged - Some emotional difficulties but managing
+   c) Stable - Generally positive with normal ups and downs
+   d) Thriving - Excellent mental health and emotional resilience
+
+10. How often do you take time for self-care and personal reflection?
+    a) Never - No time for self-care or reflection
+    b) Rarely - Occasional self-care when absolutely necessary
+    c) Regularly - Weekly self-care and reflection practices
+    d) Daily - Consistent daily self-care and mindfulness practices
+
+Scoring Guide:
+Each answer option has a point value (a=0, b=1, c=2, d=3). Total possible score: 30 points.
+
+Score Ranges and Recommendations:
+
+0-7 Points - Immediate Attention Needed
+Your wellness score indicates several areas requiring immediate attention. Consider seeking support from healthcare professionals, counselors, or wellness coaches. Start with small, manageable changes in one area at a time.
+
+8-15 Points - Significant Improvement Opportunities  
+You have a foundation to build upon, but there are important areas where focused improvement could greatly enhance your overall wellbeing. Consider developing a structured wellness plan targeting your lowest-scoring areas.
+
+16-23 Points - Good Foundation with Room for Growth
+You're doing well in many areas of wellness! Focus on strengthening the areas where you scored lowest while maintaining your current positive practices. Consider setting specific goals for continued improvement.
+
+24-30 Points - Excellent Wellness Level
+Congratulations! You demonstrate strong wellness practices across multiple life areas. Continue your excellent habits and consider sharing your strategies with others or mentoring those seeking to improve their wellness.
+
+Note: This assessment is for self-reflection purposes and does not replace professional medical, psychological, or wellness advice.

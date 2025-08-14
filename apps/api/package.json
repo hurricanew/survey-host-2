@@ -58,15 +58,15 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": "ts-jest"
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "moduleNameMapping": {
-      "^@survey-platform/shared/(.*)$": "<rootDir>/../../packages/shared/src/$1"
+    "moduleNameMapper": {
+      "^@survey-platform/shared/(.*)$": "<rootDir>/../../../packages/shared/src/$1"
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(@survey-platform)/)"
