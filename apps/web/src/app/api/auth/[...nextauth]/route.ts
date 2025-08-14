@@ -45,13 +45,47 @@ const handler = NextAuth({
     },
     async signIn({ user, account, profile }) {
       try {
-        // TODO: Store user in database in Task 5
-        console.log('User signed in:', { user, account, profile })
-        
         // Ensure we have required user information
         if (!user.email || !user.name) {
           console.error('Missing required user information:', { user })
           return false
+        }
+
+        // Create/update user in database via API
+        if (account?.provider === 'google' && profile) {
+          try {
+            const googleUser = {
+              id: profile.sub || user.id,
+              email: user.email,
+              name: user.name,
+              picture: (profile as { picture?: string }).picture || user.image,
+            }
+
+            const apiUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/users/create`
+            console.log('Attempting to validate user with internal API:', { apiUrl, googleUser })
+            
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ googleUser }),
+            })
+
+            if (!response.ok) {
+              console.warn('Failed to create/validate user in database (continuing with JWT-only auth):', {
+                status: response.status,
+                statusText: response.statusText
+              })
+              // Continue with JWT-only authentication - user data is still available in session
+            } else {
+              const result = await response.json()
+              console.log('✅ User validated/created in database:', result)
+            }
+          } catch (apiError) {
+            console.warn('Database connection failed (continuing with JWT-only auth):', apiError.message)
+            // Continue with JWT-only authentication - user can still access the app
+          }
         }
         
         return true
