@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { UserRole, type AuthUser, type GoogleOAuthUser } from '@survey-platform/shared/types';
-import { User, UserRole as PrismaUserRole } from '../../generated/prisma';
+import { User, UserRole as PrismaUserRole } from '@prisma/client';
 
 @Injectable()
 export class UsersService {

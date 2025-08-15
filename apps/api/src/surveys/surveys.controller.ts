@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { SurveysService } from './surveys.service';
 import { CreateSurveyDto } from './dto/create-survey.dto';
+import { ParseSurveyDto } from './dto/parse-survey.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
@@ -51,6 +52,7 @@ export class SurveysController {
   toggleActive(@Param('id') id: string, @CurrentUser() user: any) {
     return this.surveysService.toggleActive(id, user.id);
   }
+
 }
 
 // Public endpoint for viewing surveys (no auth required)
@@ -58,8 +60,28 @@ export class SurveysController {
 export class PublicSurveysController {
   constructor(private readonly surveysService: SurveysService) {}
 
+  @Post('parse')
+  parseSurvey(@Body() parseSurveyDto: ParseSurveyDto) {
+    return this.surveysService.parseSurvey(parseSurveyDto);
+  }
+
+  @Post('create')
+  createSurveyPublic(@Body() createSurveyDto: CreateSurveyDto) {
+    // For development - use the test user ID
+    const testUserId = 'test-user-123';
+    return this.surveysService.create(testUserId, createSurveyDto);
+  }
+
+  @Get('all')
+  getAllSurveysPublic() {
+    // For development - get surveys for test user
+    const testUserId = 'test-user-123';
+    return this.surveysService.findAllByUser(testUserId);
+  }
+
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
     return this.surveysService.findOneBySlug(slug);
   }
+
 }

@@ -1,11 +1,16 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateSurveyDto } from './dto/create-survey.dto';
+import { ParseSurveyDto, ParseSurveyResponseDto } from './dto/parse-survey.dto';
 import { Survey } from '@prisma/client';
+import { SurveyTextParser } from './utils/text-parser';
 
 @Injectable()
 export class SurveysService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private surveyTextParser: SurveyTextParser
+  ) {}
 
   async create(userId: string, createSurveyDto: CreateSurveyDto): Promise<Survey> {
     const { title, content, description } = createSurveyDto;
@@ -18,7 +23,7 @@ export class SurveysService {
         userId,
         title,
         description,
-        content,
+        content: JSON.stringify(content),
         slug,
       },
     });
@@ -93,6 +98,38 @@ export class SurveysService {
       where: { id },
       data: { isActive: !survey.isActive },
     });
+  }
+
+  async parseSurvey(parseSurveyDto: ParseSurveyDto): Promise<ParseSurveyResponseDto> {
+    const { text } = parseSurveyDto;
+    
+    // Parse the survey text using DeepSeek API
+    const parsedSurvey = await this.surveyTextParser.parse(text);
+    
+    // Generate a simple slug based on the title (without database check for now)
+    const slug = this.generateSimpleSlug(parsedSurvey.title);
+    
+    return {
+      ...parsedSurvey,
+      slug
+    };
+  }
+
+  private generateSimpleSlug(title: string): string {
+    // Create slug from title without database check
+    let slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 50);
+    
+    if (!slug) {
+      slug = 'survey';
+    }
+
+    // Add timestamp to make it unique
+    const timestamp = Date.now().toString(36);
+    return `${slug}-${timestamp}`;
   }
 
   private async generateUniqueSlug(title: string): Promise<string> {
