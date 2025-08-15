@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SurveysService } from '../surveys.service';
 import { PrismaService } from '../../database/prisma.service';
+import { SurveyTextParser } from '../utils/text-parser';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 
 describe('SurveysService', () => {
@@ -25,6 +26,13 @@ describe('SurveysService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: SurveyTextParser,
+          useValue: {
+            parse: jest.fn(),
+            validateParsedSurvey: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -69,7 +77,7 @@ describe('SurveysService', () => {
           userId,
           title: 'Test Survey',
           description: 'Test description',
-          content: 'Test content',
+          content: '"Test content"',
           slug: 'test-survey',
         },
       });

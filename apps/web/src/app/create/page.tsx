@@ -5,17 +5,42 @@ import {
   Container, 
   Heading, 
   VStack, 
-  HStack, 
   Button, 
   Textarea, 
   Input, 
   Text,
   Flex
 } from '@chakra-ui/react'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { AuthGuard } from '@/components/AuthGuard'
 import { useRouter } from 'next/navigation'
-import { FiUpload, FiEye, FiLink } from 'react-icons/fi'
+import { FiUpload } from 'react-icons/fi'
+import { InteractiveSurveyPreview } from '@/components/survey/InteractiveSurveyPreview'
+
+interface ParsedSurvey {
+  title: string;
+  description: string;
+  questions: Array<{
+    id: number;
+    text: string;
+    options: Array<{
+      id: string;
+      text: string;
+      score: number;
+    }>;
+  }>;
+  scoringGuide: {
+    pointValues: string;
+    totalPossible: number;
+    ranges: Array<{
+      min: number;
+      max: number;
+      title: string;
+      description: string;
+    }>;
+  };
+  note?: string;
+}
 
 export default function CreateSurveyPage() {
   return (
@@ -33,7 +58,69 @@ function CreateSurveyContent() {
   }, [])
   
   const [surveyText, setSurveyText] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [parsedSurvey, setParsedSurvey] = useState<ParsedSurvey | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
+  const [isParsing, setIsParsing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Simple debounce implementation
+  const useDebounce = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value)
+
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value)
+      }, delay)
+
+      return () => {
+        clearTimeout(handler)
+      }
+    }, [value, delay])
+
+    return debouncedValue
+  }
+
+  const debouncedSurveyText = useDebounce(surveyText, 500)
+
+  // Parse survey text when it changes
+  useEffect(() => {
+    const parseSurvey = async (text: string) => {
+      if (!text.trim()) {
+        setParsedSurvey(null)
+        setParseError(null)
+        return
+      }
+
+      setIsParsing(true)
+      setParseError(null)
+
+      try {
+        const response = await fetch('/api/surveys/parse', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new Error(errorData.message || 'Failed to parse survey')
+        }
+
+        const result = await response.json()
+        setParsedSurvey(result)
+      } catch (error) {
+        console.error('Parse error:', error)
+        setParseError(error instanceof Error ? error.message : 'Failed to parse survey text')
+        setParsedSurvey(null)
+      } finally {
+        setIsParsing(false)
+      }
+    }
+
+    parseSurvey(debouncedSurveyText)
+  }, [debouncedSurveyText])
 
   const handleFileUpload = useCallback((selectedFile: File) => {
     if (!selectedFile.name.toLowerCase().endsWith('.txt')) {
@@ -61,29 +148,13 @@ function CreateSurveyContent() {
     }
   }
 
-  const generateSurveyTitle = (content: string): string => {
-    // Extract first line or first question as title
-    const lines = content.trim().split('\n').filter(line => line.trim())
-    if (lines.length === 0) return 'Untitled Survey'
-    
-    let title = lines[0].trim()
-    // Remove common question prefixes
-    title = title.replace(/^\d+\.\s*/, '').replace(/^[Qq]uestion\s*\d*:?\s*/i, '')
-    // Truncate if too long
-    if (title.length > 50) {
-      title = title.substring(0, 47) + '...'
-    }
-    
-    return title || 'Untitled Survey'
-  }
-
-  const handleGenerateLink = async () => {
-    if (!surveyText.trim()) {
-      showToast('Please enter survey content or upload a file', 'error')
+  const handleSaveSurvey = async () => {
+    if (!parsedSurvey) {
+      showToast('Please enter valid survey content first', 'error')
       return
     }
 
-    setIsGenerating(true)
+    setIsSaving(true)
     
     try {
       const response = await fetch('/api/surveys', {
@@ -92,27 +163,28 @@ function CreateSurveyContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: generateSurveyTitle(surveyText),
-          content: surveyText,
+          title: parsedSurvey.title,
+          description: parsedSurvey.description,
+          content: parsedSurvey,
         }),
       })
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || 'Failed to create survey')
+        throw new Error(errorData.message || 'Failed to save survey')
       }
 
       const survey = await response.json()
       
-      showToast(`Your survey "${survey.title}" has been created successfully`)
+      showToast(`Your survey "${survey.title}" has been saved successfully`)
       
       // Navigate back to dashboard to see the new survey
       router.push('/dashboard')
     } catch (error) {
-      console.error('Survey creation error:', error)
+      console.error('Survey save error:', error)
       showToast(error instanceof Error ? error.message : 'Something went wrong. Please try again.', 'error')
     } finally {
-      setIsGenerating(false)
+      setIsSaving(false)
     }
   }
 
@@ -126,6 +198,13 @@ function CreateSurveyContent() {
               Enter your survey content below or upload a text file to get started
             </Text>
           </VStack>
+
+          {/* Parse Error Alert */}
+          {parseError && (
+            <Box p={4} bg="#FED7D7" border="1px solid #E53E3E" rounded="md">
+              <Text fontSize="16px" color="#C53030">{parseError}</Text>
+            </Box>
+          )}
 
           <Flex gap={8} direction={{ base: 'column', lg: 'row' }}>
             {/* Left Panel - Input Section */}
@@ -159,60 +238,41 @@ function CreateSurveyContent() {
                   border="1px solid"
                   borderColor="#4A5568"
                 />
+
+                {isParsing && (
+                  <Text fontSize="14px" color="#4A5568" fontStyle="italic">
+                    Parsing survey text...
+                  </Text>
+                )}
               </VStack>
             </Box>
 
-            {/* Right Panel - Live Preview */}
+            {/* Right Panel - Interactive Preview with Save Button */}
             <Box flex="1">
               <VStack align="stretch" gap={4}>
-                <Heading fontSize="24px" fontWeight="bold">Live Preview</Heading>
-                
-                <Box 
-                  minH="500px" 
-                  bg="white" 
-                  p={6} 
-                  rounded="md" 
-                  border="1px solid" 
-                  borderColor="#4A5568"
-                >
-                  {surveyText ? (
-                    <Box whiteSpace="pre-wrap" fontSize="16px">
-                      {surveyText}
-                    </Box>
-                  ) : (
-                    <Flex 
-                      align="center" 
-                      justify="center" 
-                      minH="400px"
-                      direction="column"
-                      gap={3}
+                <Flex justify="space-between" align="center">
+                  <Heading fontSize="24px" fontWeight="bold">Interactive Preview</Heading>
+                  {parsedSurvey && (
+                    <Button
+                      onClick={handleSaveSurvey}
+                      bg="#2B6CB0"
+                      color="white"
+                      size="md"
+                      disabled={isSaving}
+                      _hover={{ bg: "#2556A3" }}
+                      _disabled={{ bg: "#E2E8F0", color: "#A0AEC0" }}
                     >
-                      <FiEye size={32} color="#4A5568" />
-                      <Text color="#4A5568" textAlign="center" fontSize="16px">
-                        Your survey preview will appear here
-                      </Text>
-                    </Flex>
+                      {isSaving ? 'Saving...' : 'Save Survey'}
+                    </Button>
                   )}
-                </Box>
+                </Flex>
+                
+                <InteractiveSurveyPreview
+                  surveyData={parsedSurvey}
+                />
               </VStack>
             </Box>
           </Flex>
-
-          {/* Generate Link Button */}
-          <HStack justify="center" gap={3} pt={4}>
-            <Button
-              bg="#2B6CB0"
-              color="white"
-              onClick={handleGenerateLink}
-              disabled={!surveyText.trim() || isGenerating}
-              size="lg"
-              px={8}
-              _hover={{ bg: "#2556A3" }}
-              _disabled={{ bg: "#E2E8F0" }}
-            >
-              <FiLink /> {isGenerating ? 'Generating...' : 'Generate Link'}
-            </Button>
-          </HStack>
         </VStack>
       </Container>
     </Box>
