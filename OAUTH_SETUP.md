@@ -2,7 +2,7 @@
 
 🚨 **CRITICAL**: You're currently using placeholder/example OAuth credentials that don't belong to you!
 
-**Current Problem**: The app is trying to use example credentials (`your_actual_client_id_here.apps.googleusercontent.com`) which belong to a different Google Cloud project that you can't modify.
+**Current Problem**: The app is trying to use example credentials which belong to a different Google Cloud project that you can't modify.
 
 **Solution**: You MUST create your own Google Cloud project and OAuth credentials. Follow these steps:
 
