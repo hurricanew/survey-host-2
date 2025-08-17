@@ -1,6 +1,15 @@
 'use client'
 
-import { Box, Heading, Text, VStack, Button, HStack, Spinner, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton } from '@chakra-ui/react'
+import { Box, Heading, Text, VStack, Button, HStack, Spinner } from '@chakra-ui/react'
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+} from '@chakra-ui/react'
 import { MdDelete } from 'react-icons/md'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthGuard } from '@/components/AuthGuard'
@@ -222,22 +231,23 @@ function DashboardContent() {
           ))}
         </VStack>
 
-        {/* Delete Confirmation Modal */}
-        <Modal 
-          isOpen={!!surveyToDelete} 
-          onClose={() => setSurveyToDelete(null)}
-          isCentered
+        {/* Delete Confirmation Dialog */}
+        <DialogRoot 
+          open={!!surveyToDelete} 
+          onOpenChange={(e) => e.open ? null : setSurveyToDelete(null)}
+          placement="center"
         >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Delete Survey</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Survey</DialogTitle>
+            </DialogHeader>
+            <DialogCloseTrigger />
+            <DialogBody>
               <Text>
                 Are you sure you want to delete &quot;{surveyToDelete?.title}&quot;? This action cannot be undone.
               </Text>
-            </ModalBody>
-            <ModalFooter>
+            </DialogBody>
+            <DialogFooter>
               <HStack gap={3}>
                 <Button
                   variant="outline"
@@ -256,9 +266,9 @@ function DashboardContent() {
                   {isDeleting ? 'Deleting...' : 'Delete Survey'}
                 </Button>
               </HStack>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+            </DialogFooter>
+          </DialogContent>
+        </DialogRoot>
       </Box>
     </Box>
   )

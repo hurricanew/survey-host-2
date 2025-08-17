@@ -29,19 +29,19 @@ jest.mock('@chakra-ui/react', () => ({
     <button onClick={onClick} disabled={disabled} aria-label={props['aria-label']} {...props}>{icon}</button>
   ),
   Spinner: () => <div role="status">Loading...</div>,
-  Modal: ({ children, isOpen, onClose }: { 
+  DialogRoot: ({ children, open, onOpenChange }: { 
     children?: React.ReactNode; 
-    isOpen?: boolean; 
-    onClose?: () => void;
+    open?: boolean; 
+    onOpenChange?: (e: { open: boolean }) => void;
   }) => (
-    isOpen ? <div data-testid="modal" onClick={() => onClose?.()}>{children}</div> : null
+    open ? <div data-testid="dialog" onClick={() => onOpenChange?.({ open: false })}>{children}</div> : null
   ),
-  ModalOverlay: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
-  ModalContent: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
-  ModalHeader: ({ children, ...props }: { children?: React.ReactNode }) => <h2 {...props}>{children}</h2>,
-  ModalBody: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
-  ModalFooter: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
-  ModalCloseButton: () => <button data-testid="close-modal">×</button>,
+  DialogContent: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
+  DialogHeader: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
+  DialogTitle: ({ children, ...props }: { children?: React.ReactNode }) => <h2 {...props}>{children}</h2>,
+  DialogBody: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
+  DialogFooter: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
+  DialogCloseTrigger: () => <button data-testid="close-dialog">×</button>,
 }))
 
 // Mock the AuthGuard component
@@ -124,7 +124,7 @@ describe('Dashboard Page - Delete Functionality', () => {
     expect(deleteButtons).toHaveLength(2)
   })
 
-  it('opens delete confirmation modal when delete button is clicked', async () => {
+  it('opens delete confirmation dialog when delete button is clicked', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(mockSurveys)
@@ -140,12 +140,12 @@ describe('Dashboard Page - Delete Functionality', () => {
     const deleteButtons = screen.getAllByLabelText('Delete survey')
     fireEvent.click(deleteButtons[0])
 
-    // Check that the modal is opened
+    // Check that the dialog is opened
     expect(screen.getByRole('heading', { name: 'Delete Survey' })).toBeInTheDocument()
     expect(screen.getByText('Are you sure you want to delete "Survey 1"? This action cannot be undone.')).toBeInTheDocument()
   })
 
-  it('closes modal when cancel button is clicked', async () => {
+  it('closes dialog when cancel button is clicked', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(mockSurveys)
@@ -157,7 +157,7 @@ describe('Dashboard Page - Delete Functionality', () => {
       expect(screen.getByText('Survey 1')).toBeInTheDocument()
     })
 
-    // Open modal
+    // Open dialog
     const deleteButtons = screen.getAllByLabelText('Delete survey')
     fireEvent.click(deleteButtons[0])
 
@@ -166,7 +166,7 @@ describe('Dashboard Page - Delete Functionality', () => {
     // Click cancel
     fireEvent.click(screen.getByText('Cancel'))
 
-    // Modal should be closed
+    // Dialog should be closed
     expect(screen.queryByRole('heading', { name: 'Delete Survey' })).not.toBeInTheDocument()
   })
 
@@ -188,7 +188,7 @@ describe('Dashboard Page - Delete Functionality', () => {
       expect(screen.getByText('Survey 2')).toBeInTheDocument()
     })
 
-    // Open modal
+    // Open dialog
     const deleteButtons = screen.getAllByLabelText('Delete survey')
     fireEvent.click(deleteButtons[0])
 
@@ -208,7 +208,7 @@ describe('Dashboard Page - Delete Functionality', () => {
       expect(screen.getByText('Survey 2')).toBeInTheDocument()
     })
 
-    // Modal should be closed
+    // Dialog should be closed
     expect(screen.queryByRole('heading', { name: 'Delete Survey' })).not.toBeInTheDocument()
   })
 
@@ -230,7 +230,7 @@ describe('Dashboard Page - Delete Functionality', () => {
       expect(screen.getByText('Survey 1')).toBeInTheDocument()
     })
 
-    // Open modal and confirm deletion
+    // Open dialog and confirm deletion
     const deleteButtons = screen.getAllByLabelText('Delete survey')
     fireEvent.click(deleteButtons[0])
     const deleteButton = screen.getByRole('button', { name: 'Delete Survey' })
@@ -241,7 +241,7 @@ describe('Dashboard Page - Delete Functionality', () => {
     })
   })
 
-  it('closes modal when clicking outside', async () => {
+  it('closes dialog when clicking outside', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(mockSurveys)
@@ -253,16 +253,16 @@ describe('Dashboard Page - Delete Functionality', () => {
       expect(screen.getByText('Survey 1')).toBeInTheDocument()
     })
 
-    // Open modal
+    // Open dialog
     const deleteButtons = screen.getAllByLabelText('Delete survey')
     fireEvent.click(deleteButtons[0])
 
     expect(screen.getByRole('heading', { name: 'Delete Survey' })).toBeInTheDocument()
 
-    // Click outside the modal (on the overlay)
-    fireEvent.click(screen.getByTestId('modal'))
+    // Click outside the dialog (on the overlay)
+    fireEvent.click(screen.getByTestId('dialog'))
 
-    // Modal should be closed
+    // Dialog should be closed
     expect(screen.queryByRole('heading', { name: 'Delete Survey' })).not.toBeInTheDocument()
   })
 })
