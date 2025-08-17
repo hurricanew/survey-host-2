@@ -61,9 +61,9 @@ export class SurveyTextParser {
       "text": "string",
       "options": [
         {
-          "id": "a"|"b"|"c"|"d",
+          "id": "a"|"b"|"c"|"d"|"e"|"f",
           "text": "string",
-          "score": 0|1|2|3
+          "score": number
         }
       ]
     }
@@ -87,7 +87,10 @@ Rules:
 - Extract the title from the first line
 - Extract description from the text after title before questions
 - Parse numbered questions (1., 2., etc.)
-- Parse lettered options (a), b), c), d) with scores a=0, b=1, c=2, d=3
+- Parse lettered options (A), B), C), D), etc. and extract their point values from the text
+- Map option ids to lowercase letters: A=a, B=b, C=c, D=d, etc.
+- Extract actual point/score values from the text (e.g., "5 pts" = 5, "3 pts" = 3)
+- Support variable number of options per question (2-6 options)
 - Extract scoring guide with point values and score ranges
 - Extract any notes at the end
 - Return only valid JSON, no explanations`
@@ -111,6 +114,8 @@ Rules:
       if (!content) {
         throw new BadRequestException('Failed to get response from DeepSeek API');
       }
+
+      console.log('DeepSeek AI Response:', content.substring(0, 500) + '...');
 
       let parsedSurvey: ParsedSurvey;
       try {
@@ -153,8 +158,9 @@ Rules:
       throw new BadRequestException('Survey title is required');
     }
 
+    // Description is optional, but set a default if empty
     if (!survey.description || survey.description.trim().length === 0) {
-      throw new BadRequestException('Survey description is required');
+      survey.description = 'Survey description not provided';
     }
 
     if (!survey.questions || survey.questions.length === 0) {
@@ -166,18 +172,19 @@ Rules:
         throw new BadRequestException(`Question ${index + 1} text is required`);
       }
 
-      if (!question.options || question.options.length !== 4) {
-        throw new BadRequestException(`Question ${index + 1} must have exactly 4 options`);
+      if (!question.options || question.options.length < 2) {
+        throw new BadRequestException(`Question ${index + 1} must have at least 2 options`);
       }
 
-      const expectedIds = ['a', 'b', 'c', 'd'];
+      const expectedIds = ['a', 'b', 'c', 'd', 'e', 'f'];
       question.options.forEach((option, optionIndex) => {
-        if (option.id !== expectedIds[optionIndex]) {
+        if (optionIndex < expectedIds.length && option.id !== expectedIds[optionIndex]) {
           throw new BadRequestException(`Question ${index + 1} option ${optionIndex + 1} must have id '${expectedIds[optionIndex]}'`);
         }
 
-        if (option.score !== optionIndex) {
-          throw new BadRequestException(`Question ${index + 1} option ${option.id} must have score ${optionIndex}`);
+        // Allow custom scoring - just validate it's a number
+        if (typeof option.score !== 'number') {
+          throw new BadRequestException(`Question ${index + 1} option ${option.id} score must be a number`);
         }
 
         if (!option.text || option.text.trim().length === 0) {

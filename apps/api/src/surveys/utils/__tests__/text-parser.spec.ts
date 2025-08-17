@@ -182,7 +182,7 @@ describe('SurveyTextParser', () => {
       expect(() => parser.validateParsedSurvey(invalidSurvey)).toThrow(BadRequestException);
     });
 
-    it('should throw error for wrong number of options', () => {
+    it('should throw error for too few options', () => {
       const invalidSurvey = {
         title: 'Test',
         description: 'Test Description',
@@ -191,8 +191,7 @@ describe('SurveyTextParser', () => {
             id: 1,
             text: 'Question?',
             options: [
-              { id: 'a', text: 'Option A', score: 0 },
-              { id: 'b', text: 'Option B', score: 1 }
+              { id: 'a', text: 'Option A', score: 0 }
             ]
           }
         ],
