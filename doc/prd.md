@@ -121,7 +121,7 @@ As a Creator, when I submit my formatted text, I want the system to parse and sa
 AC: Backend endpoint accepts survey text, parsing logic correctly interprets syntax, new survey record is created and linked to user, unique slug is generated and returned. But survey will not be created in db yet. Live preview, which is operating same way with real survey, will show one question at a time with options as single choice, at the end of survey user will be given a total score and a description of the total score. check doc/sample.txt as reference. there will be save survey button, once saved, survey will be added to db. 
 
 Story 1.5: Creator Dashboard & Link Generation
-As a Creator, I want to see a list of my created surveys on my dashboard...
+As a Creator, I want to see a list of my created surveys on my dashboard, when click view survey i will be redirect to a new page with url as [domain]/survey/[8digithash] and show the survey live, notice this url shouldn't require login to take it. copy link button will copy that url too. 
 
 AC: Dashboard lists all surveys for the logged-in user, each item shows the title and full shareable URL, a "Copy Link" button works.
 

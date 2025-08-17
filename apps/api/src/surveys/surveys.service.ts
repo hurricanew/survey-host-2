@@ -15,8 +15,8 @@ export class SurveysService {
   async create(userId: string, createSurveyDto: CreateSurveyDto): Promise<Survey> {
     const { title, content, description } = createSurveyDto;
     
-    // Generate a unique slug
-    const slug = await this.generateUniqueSlug(title);
+    // Generate a unique 8-digit hash key
+    const slug = await this.generateUniqueSlugWithRetry();
     
     return this.prisma.survey.create({
       data: {
@@ -116,20 +116,41 @@ export class SurveysService {
   }
 
   private generateSimpleSlug(title: string): string {
-    // Create slug from title without database check
-    let slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .substring(0, 50);
-    
-    if (!slug) {
-      slug = 'survey';
-    }
+    // Generate 8-digit unique hash key
+    return this.generateUniqueHashKey();
+  }
 
-    // Add timestamp to make it unique
-    const timestamp = Date.now().toString(36);
-    return `${slug}-${timestamp}`;
+  private generateUniqueHashKey(): string {
+    // Generate a random 8-digit hash using alphanumeric characters
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  private async generateUniqueSlugWithRetry(): Promise<string> {
+    let attempts = 0;
+    const maxAttempts = 10;
+    
+    while (attempts < maxAttempts) {
+      const hashKey = this.generateUniqueHashKey();
+      
+      // Check if this hash key already exists
+      const existingSurvey = await this.prisma.survey.findUnique({
+        where: { slug: hashKey },
+      });
+      
+      if (!existingSurvey) {
+        return hashKey;
+      }
+      
+      attempts++;
+    }
+    
+    // If we've exhausted attempts, throw an error
+    throw new Error('Unable to generate unique hash key after maximum attempts');
   }
 
   private async generateUniqueSlug(title: string): Promise<string> {

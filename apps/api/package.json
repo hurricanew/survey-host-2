@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "build": "nest build",
-    "dev": "nest start --watch",
-    "start": "nest start",
-    "start:prod": "node dist/main",
+    "dev": "npm run build && node dist/apps/api/src/main",
+    "start": "node dist/apps/api/src/main",
+    "start:prod": "node dist/apps/api/src/main",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

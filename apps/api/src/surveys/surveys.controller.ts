@@ -84,4 +84,11 @@ export class PublicSurveysController {
     return this.surveysService.findOneBySlug(slug);
   }
 
+  @Delete(':id')
+  deletePublic(@Param('id') id: string) {
+    // For development - delete surveys for test user
+    const testUserId = 'test-user-123';
+    return this.surveysService.delete(id, testUserId);
+  }
+
 }

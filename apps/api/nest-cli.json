@@ -7,6 +7,7 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "assets": ["**/*.prisma"],
-    "watchAssets": true
+    "watchAssets": true,
+    "outDir": "./dist"
   }
 }

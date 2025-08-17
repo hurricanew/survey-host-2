@@ -54,31 +54,34 @@ describe('SurveysService', () => {
         description: 'Test description',
       };
 
-      const expectedSurvey = {
-        id: 'survey-1',
-        userId,
-        title: 'Test Survey',
-        content: 'Test content',
-        description: 'Test description',
-        slug: 'test-survey',
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
+      // Mock findUnique to return null (no collision)
       mockPrismaService.survey.findUnique.mockResolvedValue(null);
-      mockPrismaService.survey.create.mockResolvedValue(expectedSurvey);
+      
+      // Mock create to return survey with generated slug
+      mockPrismaService.survey.create.mockImplementation((data) => {
+        return Promise.resolve({
+          id: 'survey-1',
+          userId,
+          title: 'Test Survey',
+          content: 'Test content',
+          description: 'Test description',
+          slug: data.data.slug, // Use the generated slug
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      });
 
       const result = await service.create(userId, createSurveyDto);
 
-      expect(result).toEqual(expectedSurvey);
+      expect(result.slug).toMatch(/^[A-Za-z0-9]{8}$/); // Verify 8-digit hash format
       expect(mockPrismaService.survey.create).toHaveBeenCalledWith({
         data: {
           userId,
           title: 'Test Survey',
           description: 'Test description',
           content: '"Test content"',
-          slug: 'test-survey',
+          slug: expect.stringMatching(/^[A-Za-z0-9]{8}$/), // 8-digit alphanumeric hash
         },
       });
     });
