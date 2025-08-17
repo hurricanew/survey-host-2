@@ -1,6 +1,7 @@
 'use client'
 
-import { Box, Heading, Text, VStack, Button, HStack, Spinner } from '@chakra-ui/react'
+import { Box, Heading, Text, VStack, Button, HStack, Spinner, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton } from '@chakra-ui/react'
+import { MdDelete } from 'react-icons/md'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthGuard } from '@/components/AuthGuard'
 import { useRouter } from 'next/navigation'
@@ -14,15 +15,71 @@ export default function DashboardPage() {
   )
 }
 
+interface Survey {
+  id: string;
+  title: string;
+  description?: string;
+  slug: string;
+  createdAt: string;
+  isActive: boolean;
+}
+
 function DashboardContent() {
   const { user } = useAuth()
   const router = useRouter()
-  const [surveys, setSurveys] = useState([])
+  const [surveys, setSurveys] = useState<Survey[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [copiedSurveyId, setCopiedSurveyId] = useState<string | null>(null)
+  const [surveyToDelete, setSurveyToDelete] = useState<Survey | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleCreateSurvey = () => {
     router.push('/create')
+  }
+
+  const handleCopyLink = async (survey: Survey) => {
+    const url = `${window.location.origin}/survey/${survey.slug}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedSurveyId(survey.id)
+      // Hide the alert after 4 seconds
+      setTimeout(() => {
+        setCopiedSurveyId(null)
+      }, 4000)
+    } catch (err) {
+      console.error('Failed to copy link:', err)
+      // Fallback for browsers that don't support clipboard API
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      alert(`Failed to copy link: ${errorMessage}. Please copy manually: ${url}`)
+    }
+  }
+
+  const handleDeleteSurvey = async () => {
+    if (!surveyToDelete) return
+    
+    try {
+      setIsDeleting(true)
+      setError(null) // Clear any previous errors
+      
+      const response = await fetch(`/api/surveys/delete/${surveyToDelete.id}`, {
+        method: 'DELETE',
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to delete survey')
+      }
+      
+      // Remove the survey from the list
+      setSurveys(surveys.filter(s => s.id !== surveyToDelete.id))
+      setSurveyToDelete(null)
+    } catch (err) {
+      console.error('Error deleting survey:', err)
+      setError(err instanceof Error ? err.message : 'Failed to delete survey')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   // Fetch surveys on component mount
@@ -40,7 +97,7 @@ function DashboardContent() {
         setSurveys(data)
       } catch (err) {
         console.error('Error fetching surveys:', err)
-        setError(err.message)
+        setError(err instanceof Error ? err.message : 'Failed to fetch surveys')
       } finally {
         setIsLoading(false)
       }
@@ -109,17 +166,31 @@ function DashboardContent() {
                 <Text color="#4A5568" fontSize="14px">
                   Created: {new Date(survey.createdAt).toLocaleDateString()}
                 </Text>
+                
+                {/* Success Alert for Copy Link */}
+                {copiedSurveyId === survey.id && (
+                  <Box 
+                    bg="#C6F6D5" 
+                    border="1px solid #68D391" 
+                    rounded="md" 
+                    p={3}
+                    fontSize="14px"
+                    color="#22543D"
+                  >
+                    <HStack gap={2}>
+                      <Text fontWeight="bold">✓</Text>
+                      <Text>Survey link copied to clipboard!</Text>
+                    </HStack>
+                  </Box>
+                )}
+                
                 <HStack gap={2}>
                   <Button 
                     size="sm" 
                     variant="outline" 
                     borderColor="#2B6CB0" 
                     color="#2B6CB0"
-                    onClick={() => {
-                      const url = `${window.location.origin}/survey/${survey.slug}`
-                      navigator.clipboard.writeText(url)
-                      alert('Survey link copied to clipboard!')
-                    }}
+                    onClick={() => handleCopyLink(survey)}
                   >
                     Copy Link
                   </Button>
@@ -132,11 +203,62 @@ function DashboardContent() {
                   >
                     View Survey
                   </Button>
+                  <Button
+                    aria-label="Delete survey"
+                    size="sm"
+                    variant="outline"
+                    borderColor="#E53E3E"
+                    color="#E53E3E"
+                    _hover={{ bg: "#FED7D7" }}
+                    onClick={() => setSurveyToDelete(survey)}
+                    minW="32px"
+                    px={2}
+                  >
+                    <MdDelete size={16} color="#E53E3E" />
+                  </Button>
                 </HStack>
               </VStack>
             </Box>
           ))}
         </VStack>
+
+        {/* Delete Confirmation Modal */}
+        <Modal 
+          isOpen={!!surveyToDelete} 
+          onClose={() => setSurveyToDelete(null)}
+          isCentered
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Delete Survey</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <Text>
+                Are you sure you want to delete &quot;{surveyToDelete?.title}&quot;? This action cannot be undone.
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <HStack gap={3}>
+                <Button
+                  variant="outline"
+                  onClick={() => setSurveyToDelete(null)}
+                  disabled={isDeleting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  bg="#E53E3E"
+                  color="white"
+                  _hover={{ bg: "#C53030" }}
+                  onClick={handleDeleteSurvey}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete Survey'}
+                </Button>
+              </HStack>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </Box>
     </Box>
   )
